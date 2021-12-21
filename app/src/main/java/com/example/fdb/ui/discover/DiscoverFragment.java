@@ -1,4 +1,4 @@
-package com.example.fdb.ui.notifications;
+package com.example.fdb.ui.discover;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,23 +13,23 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fdb.R;
-import com.example.fdb.databinding.FragmentNotificationsBinding;
+import com.example.fdb.databinding.FragmentDiscoverBinding;
 
-public class NotificationsFragment extends Fragment {
+public class DiscoverFragment extends Fragment {
 
-    private NotificationsViewModel notificationsViewModel;
-    private FragmentNotificationsBinding binding;
+    private DiscoverViewModel discoverViewModel;
+    private FragmentDiscoverBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        notificationsViewModel =
-                new ViewModelProvider(this).get(NotificationsViewModel.class);
+        discoverViewModel =
+                new ViewModelProvider(this).get(DiscoverViewModel.class);
 
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+        binding = FragmentDiscoverBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textNotifications;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        final TextView textView = binding.textDiscover;
+        discoverViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
