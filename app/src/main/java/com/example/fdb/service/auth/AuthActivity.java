@@ -30,7 +30,7 @@ public class AuthActivity extends Activity {
                 .enqueue(onSuccess(newRequestToken -> {
                     requestToken = newRequestToken;
                     final Uri uri = Uri.parse("https://www.themoviedb.org/auth/access").buildUpon()
-                            .appendQueryParameter("request_token", requestToken.request_token).build();
+                            .appendQueryParameter("request_token", requestToken.getRequest_token()).build();
                     startActivity(new Intent(Intent.ACTION_VIEW, uri));
                 }));
     }
@@ -41,8 +41,8 @@ public class AuthActivity extends Activity {
 
         Application.service.accessToken(requestToken).enqueue(onSuccess(accessToken
                 -> Application.service.sessionId(accessToken).enqueue(onSuccess(sessionId
-                -> Application.service.account(sessionId.session_id).enqueue(onSuccess(details
-                -> addAccount(details, accessToken.access_token)))))));
+                -> Application.service.account(sessionId.getSession_id()).enqueue(onSuccess(details
+                -> addAccount(details, accessToken.getAccess_token())))))));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class AuthActivity extends Activity {
 
     private void addAccount(TMDbService.Account details, String authToken) {
         final AccountManager accountManager = AccountManager.get(this);
-        final Account account = new Account(details.username, AuthService.ACCOUNT_TYPE);
+        final Account account = new Account(details.getUsername(), AuthService.ACCOUNT_TYPE);
         accountManager.addAccountExplicitly(account, null, null);
         accountManager.setAuthToken(account, account.type, authToken);
 

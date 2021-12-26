@@ -11,7 +11,7 @@ public interface TMDbService {
 
     @Value
     class RedirectTo {
-        public String redirect_to;
+        String redirect_to;
     }
 
     @POST("4/auth/request_token")
@@ -19,7 +19,7 @@ public interface TMDbService {
 
     @Value
     class RequestToken {
-        public String request_token;
+        String request_token;
     }
 
     @POST("4/auth/access_token")
@@ -27,8 +27,8 @@ public interface TMDbService {
 
     @Value
     class AccessToken {
-        public String account_id;
-        public String access_token;
+        String account_id;
+        String access_token;
     }
 
     @POST("3/authentication/session/convert/4")
@@ -36,7 +36,7 @@ public interface TMDbService {
 
     @Value
     class SessionId {
-        public String session_id;
+        String session_id;
     }
 
     @GET("3/account")
@@ -44,7 +44,22 @@ public interface TMDbService {
 
     @Value
     class Account {
-        public String name;
-        public String username;
+        String name;
+        String username;
+    }
+
+    @GET("3/discover/movie")
+    Call<Page<Movie>> discover(@Query("page") int page);
+
+    @Value
+    class Page<T> {
+        T[] results;
+        int total_results;
+    }
+
+    @Value
+    class Movie {
+        String title;
+        String overview;
     }
 }
