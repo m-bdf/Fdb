@@ -10,9 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fdb.Application;
-import com.example.fdb.R;
 import com.example.fdb.databinding.FragmentDiscoverBinding;
-import com.example.fdb.ui.movies.MoviesFragment;
 
 public class DiscoverFragment extends Fragment {
 
@@ -25,11 +23,8 @@ public class DiscoverFragment extends Fragment {
                 new ViewModelProvider(this).get(DiscoverViewModel.class);
 
         binding = FragmentDiscoverBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-
-        getChildFragmentManager().beginTransaction().replace(R.id.movies_discover,
-                new MoviesFragment(Application.service::discover)).commit();
-        return root;
+        binding.movieResults.setFetcher(Application.service::discover);
+        return binding.getRoot();
     }
 
     @Override

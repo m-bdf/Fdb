@@ -51,6 +51,9 @@ public interface TMDbService {
     @GET("3/discover/movie")
     Call<Page<Movie>> discover(@Query("page") int page);
 
+    @GET("3/search/movie")
+    Call<Page<Movie>> search(@Query("query") String query, @Query("page") int page);
+
     @Value
     class Page<T> {
         T[] results;

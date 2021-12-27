@@ -27,8 +27,8 @@ public class AuthActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         Application.service.requestToken(new TMDbService.RedirectTo("fdb://auth"))
-                .enqueue(onSuccess(newRequestToken -> {
-                    requestToken = newRequestToken;
+                .enqueue(onSuccess(requestToken -> {
+                    this.requestToken = requestToken;
                     final Uri uri = Uri.parse("https://www.themoviedb.org/auth/access").buildUpon()
                             .appendQueryParameter("request_token", requestToken.getRequest_token()).build();
                     startActivity(new Intent(Intent.ACTION_VIEW, uri));
