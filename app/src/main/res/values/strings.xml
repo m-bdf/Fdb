@@ -2,5 +2,5 @@
     <string name="app_name">Fdb</string>
     <string name="title_discover">Discover</string>
     <string name="title_search">Search</string>
-    <string name="title_me">Me</string>
+    <string name="title_me">Favorites</string>
 </resources>
