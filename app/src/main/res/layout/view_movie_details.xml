@@ -3,19 +3,54 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="movie"
             type="com.example.fdb.service.tmdb.MovieService.Movie" />
+
+        <variable
+            name="entry"
+            type="com.example.fdb.databinding.ViewMovieEntryBindingImpl" />
     </data>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/text_margin"
-            android:text="@{movie.title}" />
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:layout_weight="1"
+                    android:text="@{movie.title}"
+                    android:textAppearance="?attr/textAppearanceSearchResultTitle" />
+
+                <ImageView
+                    android:id="@+id/fav_button"
+                    style="@style/Widget.AppCompat.ActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@{movie.favorite ? @drawable/ic_star_yellow_24dp : @drawable/ic_star_outline_24dp}"
+                    android:visibility="@{movie.favorite != null ? View.VISIBLE : View.INVISIBLE}" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="1"
+                android:text="@{movie.overview}"
+                android:textAppearance="?attr/textAppearanceSearchResultSubtitle" />
+        </LinearLayout>
+    </ScrollView>
 </layout>

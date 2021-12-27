@@ -17,12 +17,12 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import com.example.fdb.Application;
 import com.example.fdb.databinding.ViewMovieDetailsBinding;
 import com.example.fdb.databinding.ViewMovieEntryBinding;
+import com.example.fdb.databinding.ViewMovieEntryBindingImpl;
 import com.example.fdb.service.tmdb.MovieService;
 import com.example.fdb.service.tmdb.MovieService.Movie;
 import com.example.fdb.service.tmdb.MovieService.Page;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import lombok.Getter;
@@ -40,22 +40,37 @@ public final class MovieListView extends SlidingPaneLayout {
 
     public MovieListView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        movieList.setLayoutManager(new LinearLayoutManager(context));
-
         addView(movieList);
         addView(movieDetails.getRoot());
-        open();
+
+        movieList.setLayoutManager(new LinearLayoutManager(context));
+        movieList.setLayoutParams(new LayoutParams(800, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        movieDetails.getRoot().setLayoutParams(
+                new LayoutParams(1000, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        movieDetails.favButton.setOnClickListener(view -> {
+            final Movie movie = movieDetails.getMovie();
+            Application.movieService.addToFavorites(Application.account.id,
+                    new MovieService.Favorite(movie.getId(), !movie.getFavorite())
+            ).enqueue(onSuccess(unused -> {
+                movie.setFavorite(!movie.getFavorite());
+                movieDetails.getEntry().setMovie(movie);
+                movieDetails.setMovie(movie);
+            }));
+        });
     }
 
     public void setFetcher(Function<Integer, Call<Page<Movie>>> fetcher) {
         movieList.setAdapter(new MovieListAdapter(fetcher));
+        open();
     }
 
     @RequiredArgsConstructor
     private class MovieListAdapter extends RecyclerView.Adapter<MovieEntryViewHolder> {
 
         private final Function<Integer, Call<Page<Movie>>> fetcher;
-        private final List<Movie> values = new ArrayList<>();
+        private final List<Movie> movies = new ArrayList<>();
         @Getter
         private int page, itemCount = 1;
 
@@ -68,13 +83,19 @@ public final class MovieListView extends SlidingPaneLayout {
 
         @Override
         public void onBindViewHolder(@NonNull MovieEntryViewHolder holder, int position) {
-            if (position < values.size()) {
-                holder.binding.setMovie(values.get(position));
+            if (position < movies.size()) {
+                holder.binding.setMovie(movies.get(position));
             } else if (null != fetcher) {
                 fetcher.apply(page += 1).enqueue(onSuccess(response -> {
-                    values.addAll(Arrays.asList(response.getResults()));
+                    if (null == response) return;
                     itemCount = response.getTotal_results();
-                    onBindViewHolder(holder, position);
+
+                    for (final Movie movie : response.getResults())
+                        Application.movieService.isFavorite(movie.getId()).enqueue(onSuccess(favorite -> {
+                            movie.setFavorite(null != favorite ? favorite.isFavorite() : null);
+                            movies.add(movie);
+                            notifyItemChanged(movies.size() - 1);
+                        }));
                 }));
             }
         }
@@ -88,15 +109,19 @@ public final class MovieListView extends SlidingPaneLayout {
             this.binding = binding;
 
             itemView.setOnClickListener(view -> {
+                movieDetails.setEntry((ViewMovieEntryBindingImpl) binding);
                 movieDetails.setMovie(binding.getMovie());
                 close();
             });
 
             binding.favButton.setOnClickListener(view -> {
+                final Movie movie = binding.getMovie();
                 Application.movieService.addToFavorites(Application.account.id,
-                        new MovieService.Favorite(binding.getMovie().getId(), true)
-                ).enqueue(onSuccess(o -> {
-                    System.out.println(o);
+                        new MovieService.Favorite(movie.getId(), !movie.getFavorite())
+                ).enqueue(onSuccess(unused -> {
+                    movie.setFavorite(!movie.getFavorite());
+                    binding.setMovie(movie);
+                    movieDetails.setMovie(movie);
                 }));
             });
         }

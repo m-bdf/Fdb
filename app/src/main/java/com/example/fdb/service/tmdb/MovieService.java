@@ -1,5 +1,6 @@
 package com.example.fdb.service.tmdb;
 
+import lombok.Data;
 import lombok.Value;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -16,11 +17,12 @@ public interface MovieService {
         int total_results;
     }
 
-    @Value
+    @Data
     class Movie {
-        int id;
-        String title;
-        String overview;
+        private int id;
+        private String title;
+        private String overview;
+        private Boolean favorite;
     }
 
     @GET("3/discover/movie")
@@ -39,6 +41,9 @@ public interface MovieService {
         boolean favorite;
     }
 
+    @GET("3/movie/{movie_id}/account_states")
+    Call<Favorite> isFavorite(@Path("movie_id") int movieId);
+
     @POST("3/account/{account_id}/favorite")
-    Call<Object> addToFavorites(@Path("account_id") int accountId, @Body Favorite favorite);
+    Call<Void> addToFavorites(@Path("account_id") int accountId, @Body Favorite favorite);
 }
