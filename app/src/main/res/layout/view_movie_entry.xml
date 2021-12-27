@@ -5,7 +5,7 @@
 
         <variable
             name="movie"
-            type="com.example.fdb.service.tmdb.TMDbService.Movie" />
+            type="com.example.fdb.service.tmdb.MovieService.Movie" />
     </data>
 
     <LinearLayout
@@ -26,5 +26,11 @@
             android:layout_margin="@dimen/text_margin"
             android:text="@{movie.overview}"
             android:textAppearance="?attr/textAppearanceListItem" />
+
+        <Button
+            android:id="@+id/fav_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add to favorites" />
     </LinearLayout>
 </layout>

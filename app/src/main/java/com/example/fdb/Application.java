@@ -1,8 +1,7 @@
 package com.example.fdb;
 
-import android.accounts.Account;
-
-import com.example.fdb.service.tmdb.TMDbService;
+import com.example.fdb.service.tmdb.AccountService;
+import com.example.fdb.service.tmdb.MovieService;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -10,27 +9,27 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Application extends android.app.Application {
 
-    public static Account selectedAccount;
-    public static String selectedToken =
-            "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyODYyODBlYTQ1OGJjN2ZjMzljNGQ3MTkzZGM0M2QwMSIsInN1YiI6IjYxYzI0MDhjOTA0ZjZkMDA5MzI4YmViOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.4qWhZknl7W2QKv2qtN8yLkXlXDIhiNlg3QGogXZ3eq8";
+    public static class Account {
+        public int id;
+        public String name;
+        public String sessionId;
+    }
 
-    private static final OkHttpClient client = new OkHttpClient().newBuilder()
-            .addInterceptor(chain -> chain.proceed(
-                    chain.request().newBuilder().header("Authorization", "Bearer " + selectedToken).build()
-            ))/*.authenticator((route, response) -> {
-                try {
-                    AccountManager accountManager = AccountManager.get(this);
-                    accountManager.invalidateAuthToken(AuthService.ACCOUNT_TYPE, selectedToken);
-                    selectedToken = accountManager.blockingGetAuthToken(
-                            selectedAccount, AuthService.ACCOUNT_TYPE, true);
-                    return response.request();
-                } catch (Exception e) {
-                    return null;
-                }
-            })*/.build();
+    public static final Account account = new Account();
 
-    public static final TMDbService service = new Retrofit.Builder().client(client)
-            .baseUrl("https://api.themoviedb.org/")
+    private static final OkHttpClient client =
+            new OkHttpClient().newBuilder().addInterceptor(chain ->
+                    chain.proceed(chain.request().newBuilder().url(chain.request().url().newBuilder()
+                            .addQueryParameter("api_key", "286280ea458bc7fc39c4d7193dc43d01")
+                            .addQueryParameter("session_id", account.sessionId)
+                            .build()).build()
+                    )).build();
+
+    public static final Retrofit retrofit = new Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .build().create(TMDbService.class);
+            .baseUrl("https://api.themoviedb.org/")
+            .client(client).build();
+
+    public static final AccountService accountService = retrofit.create(AccountService.class);
+    public static final MovieService movieService = retrofit.create(MovieService.class);
 }

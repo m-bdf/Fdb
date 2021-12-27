@@ -11,7 +11,7 @@ import android.widget.Toast;
 import androidx.core.util.Consumer;
 
 import com.example.fdb.Application;
-import com.example.fdb.service.tmdb.TMDbService;
+import com.example.fdb.service.tmdb.AccountService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,29 +20,30 @@ import retrofit2.internal.EverythingIsNonNull;
 
 public class AuthActivity extends Activity {
 
-    private TMDbService.RequestToken requestToken;
+    private AccountService.RequestToken requestToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Application.service.requestToken(new TMDbService.RedirectTo("fdb://auth"))
-                .enqueue(onSuccess(requestToken -> {
-                    this.requestToken = requestToken;
-                    final Uri uri = Uri.parse("https://www.themoviedb.org/auth/access").buildUpon()
-                            .appendQueryParameter("request_token", requestToken.getRequest_token()).build();
-                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
-                }));
+        Application.accountService.requestToken().enqueue(onSuccess(requestToken -> {
+            this.requestToken = requestToken;
+            final Uri uri = Uri.parse("https://www.themoviedb.org/authenticate")
+                    .buildUpon().appendPath(requestToken.getRequest_token())
+                    .appendQueryParameter("redirect_to", "fdb://auth").build();
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        }));
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
 
-        Application.service.accessToken(requestToken).enqueue(onSuccess(accessToken
-                -> Application.service.sessionId(accessToken).enqueue(onSuccess(sessionId
-                -> Application.service.account(sessionId.getSession_id()).enqueue(onSuccess(details
-                -> addAccount(details, accessToken.getAccess_token())))))));
+        Application.accountService.sessionId(requestToken).enqueue(onSuccess(sessionId -> {
+            Application.account.sessionId = sessionId.getSession_id();
+            Application.accountService.account().enqueue(onSuccess(details ->
+                    addAccount(details.getUsername(), sessionId.getSession_id())));
+        }));
     }
 
     @Override
@@ -73,11 +74,11 @@ public class AuthActivity extends Activity {
         };
     }
 
-    private void addAccount(TMDbService.Account details, String authToken) {
+    private void addAccount(String name, String sessionId) {
         final AccountManager accountManager = AccountManager.get(this);
-        final Account account = new Account(details.getUsername(), AuthService.ACCOUNT_TYPE);
+        final Account account = new Account(name, AuthService.ACCOUNT_TYPE);
         accountManager.addAccountExplicitly(account, null, null);
-        accountManager.setAuthToken(account, account.type, authToken);
+        accountManager.setAuthToken(account, account.type, sessionId);
 
         final Intent data = new Intent();
         data.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);

@@ -41,8 +41,7 @@ public class SearchFragment extends Fragment {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            binding.movieResults.setFetcher(page ->
-                    Application.service.search(s.toString(), page));
+            binding.results.setFetcher(page -> Application.movieService.search(s.toString(), page));
         }
 
         @Override

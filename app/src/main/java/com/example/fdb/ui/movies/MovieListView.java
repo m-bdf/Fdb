@@ -14,10 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
+import com.example.fdb.Application;
 import com.example.fdb.databinding.ViewMovieDetailsBinding;
 import com.example.fdb.databinding.ViewMovieEntryBinding;
-import com.example.fdb.service.tmdb.TMDbService.Movie;
-import com.example.fdb.service.tmdb.TMDbService.Page;
+import com.example.fdb.service.tmdb.MovieService;
+import com.example.fdb.service.tmdb.MovieService.Movie;
+import com.example.fdb.service.tmdb.MovieService.Page;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,21 +78,6 @@ public final class MovieListView extends SlidingPaneLayout {
                 }));
             }
         }
-
-        @EverythingIsNonNull
-        private <T> Callback<T> onSuccess(Consumer<T> consumer) {
-            return new Callback<T>() {
-                @Override
-                public void onResponse(Call<T> call, Response<T> response) {
-                    consumer.accept(response.body());
-                }
-
-                @Override
-                public void onFailure(Call<T> call, Throwable t) {
-                    Toast.makeText(getContext(), t.toString(), Toast.LENGTH_SHORT).show();
-                }
-            };
-        }
     }
 
     private class MovieEntryViewHolder extends RecyclerView.ViewHolder {
@@ -104,6 +91,29 @@ public final class MovieListView extends SlidingPaneLayout {
                 movieDetails.setMovie(binding.getMovie());
                 close();
             });
+
+            binding.favButton.setOnClickListener(view -> {
+                Application.movieService.addToFavorites(Application.account.id,
+                        new MovieService.Favorite(binding.getMovie().getId(), true)
+                ).enqueue(onSuccess(o -> {
+                    System.out.println(o);
+                }));
+            });
         }
+    }
+
+    @EverythingIsNonNull
+    private <T> Callback<T> onSuccess(Consumer<T> consumer) {
+        return new Callback<T>() {
+            @Override
+            public void onResponse(Call<T> call, Response<T> response) {
+                consumer.accept(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<T> call, Throwable t) {
+                Toast.makeText(getContext(), t.toString(), Toast.LENGTH_SHORT).show();
+            }
+        };
     }
 }

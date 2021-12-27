@@ -23,7 +23,7 @@ public class DiscoverFragment extends Fragment {
                 new ViewModelProvider(this).get(DiscoverViewModel.class);
 
         binding = FragmentDiscoverBinding.inflate(inflater, container, false);
-        binding.movieResults.setFetcher(Application.service::discover);
+        binding.movies.setFetcher(Application.movieService::discover);
         return binding.getRoot();
     }
 

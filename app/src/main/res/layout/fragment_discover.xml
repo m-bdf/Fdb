@@ -7,7 +7,7 @@
     tools:context=".ui.discover.DiscoverFragment">
 
     <com.example.fdb.ui.movies.MovieListView
-        android:id="@+id/movie_results"
+        android:id="@+id/movies"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </LinearLayout>

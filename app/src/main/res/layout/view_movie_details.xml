@@ -5,7 +5,7 @@
 
         <variable
             name="movie"
-            type="com.example.fdb.service.tmdb.TMDbService.Movie" />
+            type="com.example.fdb.service.tmdb.MovieService.Movie" />
     </data>
 
     <LinearLayout
